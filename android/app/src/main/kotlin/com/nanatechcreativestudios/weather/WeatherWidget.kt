@@ -52,14 +52,19 @@ class WeatherWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        provideContent { WidgetContent(context, currentState()) }
+        provideContent {
+            val isSmall = LocalSize.current.width < 180.dp
+            WidgetContent(context, currentState(), isSmall)
+        }
     }
 
     override suspend fun providePreview(context: Context, widgetCategory: Int) {
         provideContent {
+            val isSmall = LocalSize.current.width < 180.dp
             WidgetContent(
                 context,
                 HomeWidgetGlanceState(HomeWidgetPlugin.getData(context)),
+                isSmall,
                 preview = true,
             )
         }
@@ -69,10 +74,10 @@ class WeatherWidget : GlanceAppWidget() {
     private fun WidgetContent(
         context: Context,
         state: HomeWidgetGlanceState,
+        isSmall: Boolean,
         preview: Boolean = false,
     ) {
         val data = readData(state.preferences, preview)
-        val isSmall = LocalSize.current.width < 180.dp
         val openApp = actionStartActivity<MainActivity>(
             context,
             Uri.parse(
