@@ -209,7 +209,7 @@ class _RadarScreenState extends State<RadarScreen> {
   }
 
   /// Shown instead of the map for free users: a locked state with an
-  /// upgrade prompt, same pattern as the locked 7-day forecast.
+  /// upgrade prompt, same pattern as the locked 10-day forecast.
   Widget _lockedRadarView(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(24),

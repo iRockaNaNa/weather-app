@@ -60,7 +60,7 @@ void main() {
     });
   });
 
-  group('PremiumRules — 7-day forecast', () {
+  group('PremiumRules — 10-day forecast', () {
     test('forecast is locked for free users', () {
       expect(
         PremiumRules.isForecastLocked(isPremium: false),

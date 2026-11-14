@@ -290,7 +290,7 @@ class _CityDetailPage extends StatelessWidget {
     );
   }
 
-  /// Shown instead of the 7-day forecast for free users: a locked state
+  /// Shown instead of the 10-day forecast for free users: a locked state
   /// with an upgrade prompt, never a blank area.
   Widget _lockedForecastCard(BuildContext context) {
     return Container(
@@ -305,7 +305,7 @@ class _CityDetailPage extends StatelessWidget {
           const Icon(Icons.lock_outline, color: Colors.white, size: 32),
           const SizedBox(height: 8),
           const Text(
-            '7-day forecast',
+            '10-day forecast',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -314,7 +314,7 @@ class _CityDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Premium unlocks the full 7-day forecast.',
+            'Premium unlocks the full 10-day forecast.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.85),

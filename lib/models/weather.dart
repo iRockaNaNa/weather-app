@@ -142,7 +142,7 @@ class WeatherData {
   /// Next hours, starting at the current hour.
   final List<HourlyPoint> hourly;
 
-  /// 7-day forecast, starting today.
+  /// 10-day forecast, starting today.
   final List<DailyPoint> daily;
 
   final DateTime fetchedAt;

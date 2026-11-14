@@ -21,7 +21,7 @@ class WeatherApi {
   static const _forecastBase = 'https://api.open-meteo.com/v1/forecast';
   static const _geoBase = 'https://geocoding-api.open-meteo.com/v1/search';
 
-  /// Current weather + hourly + 7-day forecast for one city.
+  /// Current weather + hourly + 10-day forecast for one city.
   Future<WeatherData> fetchWeather(City city) async {
     final uri = Uri.parse(
       '$_forecastBase?latitude=${city.latitude}&longitude=${city.longitude}'
@@ -30,7 +30,7 @@ class WeatherApi {
       '&hourly=temperature_2m,weather_code'
       '&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max'
       '&temperature_unit=fahrenheit&wind_speed_unit=mph'
-      '&precipitation_unit=inch&timezone=auto&forecast_days=7',
+      '&precipitation_unit=inch&timezone=auto&forecast_days=10',
     );
     try {
       final res = await _client
