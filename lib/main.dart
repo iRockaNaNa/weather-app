@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,34 +11,43 @@ import 'screens/onboarding_screen.dart';
 import 'screens/splash_screen.dart';
 import 'services/city_store.dart';
 import 'services/location_service.dart';
+import 'services/purchase_service.dart';
 import 'services/weather_api.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const WeatherApp());
+  final purchaseService = PurchaseService();
+  // Never blocks startup: any store failure just leaves the app free tier.
+  unawaited(purchaseService.initialize());
+  runApp(WeatherApp(purchaseService: purchaseService));
 }
 
 class WeatherApp extends StatelessWidget {
-  const WeatherApp({super.key});
+  const WeatherApp({super.key, required this.purchaseService});
+
+  final PurchaseService purchaseService;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => WeatherCubit(
-        api: WeatherApi(),
-        locationService: LocationService(),
-        store: CityStore(),
-      ),
-      child: MaterialApp(
-        title: 'Weather App',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF2B5FA8),
-          ),
+    return RepositoryProvider<PurchaseService>.value(
+      value: purchaseService,
+      child: BlocProvider(
+        create: (_) => WeatherCubit(
+          api: WeatherApi(),
+          locationService: LocationService(),
+          store: CityStore(),
         ),
-        home: const AppRoot(),
+        child: MaterialApp(
+          title: 'Weather App',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF2B5FA8),
+            ),
+          ),
+          home: const AppRoot(),
+        ),
       ),
     );
   }

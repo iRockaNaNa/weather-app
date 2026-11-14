@@ -5,8 +5,10 @@ import '../cubit/weather_cubit.dart';
 import '../cubit/weather_state.dart';
 import '../models/weather.dart';
 import '../models/weather_codes.dart';
+import '../services/purchase_service.dart';
 import '../widgets/hourly_strip.dart';
 import '../widgets/weather_art.dart';
+import 'paywall_screen.dart';
 
 /// Full-screen detail for one city, swipable between cities.
 /// Gradient background follows the weather, like the design reference.
@@ -197,15 +199,20 @@ class _CityDetailPage extends StatelessWidget {
               const SizedBox(height: 16),
               HourlyStrip(hourly: data.hourly),
               const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  children: data.daily.map((d) {
+              ValueListenableBuilder<bool>(
+                valueListenable:
+                    context.read<PurchaseService>().isPremium,
+                builder: (context, isPremium, _) {
+                  if (!isPremium) return _lockedForecastCard(context);
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Column(
+                      children: data.daily.map((d) {
                     final dayStyle = styleForCode(d.weatherCode, true);
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 7),
@@ -252,8 +259,10 @@ class _CityDetailPage extends StatelessWidget {
                         ],
                       ),
                     );
-                  }).toList(),
-                ),
+                      }).toList(),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 20),
               if (pageCount > 1)
@@ -277,6 +286,54 @@ class _CityDetailPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Shown instead of the 7-day forecast for free users: a locked state
+  /// with an upgrade prompt, never a blank area.
+  Widget _lockedForecastCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.lock_outline, color: Colors.white, size: 32),
+          const SizedBox(height: 8),
+          const Text(
+            '7-day forecast',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Premium unlocks the full 7-day forecast.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.85),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: () => PaywallScreen.open(
+              context,
+              context.read<PurchaseService>(),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF1A1A2E),
+            ),
+            child: const Text('See Premium'),
+          ),
+        ],
       ),
     );
   }

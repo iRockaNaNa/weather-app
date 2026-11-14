@@ -5,8 +5,12 @@ import 'package:geolocator/geolocator.dart';
 import '../cubit/weather_cubit.dart';
 import '../cubit/weather_state.dart';
 import '../models/weather.dart';
+import '../services/premium.dart';
+import '../services/purchase_service.dart';
 import '../widgets/city_card.dart';
 import 'city_detail_screen.dart';
+import 'paywall_screen.dart';
+import 'radar_screen.dart';
 
 /// Home: "Weather" title, search bar, colorful city cards.
 /// Long-press a card to remove that city.
@@ -47,6 +51,29 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _searchResults = []);
     _searchController.clear();
     final cubit = context.read<WeatherCubit>();
+    final purchaseService = context.read<PurchaseService>();
+    // Free tier: one location total. The GPS city counts as that one
+    // location when it is showing, so a free user with GPS can't add a
+    // saved city. A city that is already saved can always be opened.
+    final stateBefore = cubit.state;
+    if (stateBefore is WeatherLoaded) {
+      final savedCount = stateBefore.cities
+          .where((w) => !w.city.isCurrentLocation)
+          .length;
+      final hasGpsCity =
+          stateBefore.cities.any((w) => w.city.isCurrentLocation);
+      final alreadySaved =
+          stateBefore.cities.any((w) => w.city.id == city.id);
+      if (!alreadySaved &&
+          !PremiumRules.canAddCity(
+            savedCityCount: savedCount,
+            hasGpsCity: hasGpsCity,
+            isPremium: purchaseService.isPremium.value,
+          )) {
+        if (mounted) PaywallScreen.open(context, purchaseService);
+        return;
+      }
+    }
     await cubit.addCity(city);
     if (!mounted) return;
     final state = cubit.state;
@@ -61,6 +88,24 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CityDetailScreen(initialIndex: index),
+      ),
+    );
+  }
+
+  /// Live radar, centered on the GPS city when there is one,
+  /// otherwise on the first saved city. Free for everyone.
+  void _openRadar(List<WeatherData> cities) {
+    final gps = cities
+        .where((w) => w.city.isCurrentLocation)
+        .firstOrNull;
+    final target = gps?.city ?? cities.first.city;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RadarScreen(
+          latitude: target.latitude,
+          longitude: target.longitude,
+          cityName: target.displayName,
+        ),
       ),
     );
   }
@@ -92,6 +137,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const Spacer(),
+                      _PremiumButton(),
+                      IconButton(
+                        onPressed: () => _openRadar(cities),
+                        icon: const Icon(Icons.radar),
+                        color: const Color(0xFF2B5FA8),
+                        tooltip: 'Live radar',
+                      ),
                       IconButton(
                         onPressed: () =>
                             context.read<WeatherCubit>().retryLocation(),
@@ -242,6 +294,37 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ),
+    );
+  }
+}
+
+/// Header button: a gold star when Premium, otherwise an "Upgrade" button
+/// that opens the paywall.
+class _PremiumButton extends StatelessWidget {
+  const _PremiumButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final service = context.read<PurchaseService>();
+    return ValueListenableBuilder<bool>(
+      valueListenable: service.isPremium,
+      builder: (context, isPremium, _) {
+        if (isPremium) {
+          return const Padding(
+            padding: EdgeInsets.only(right: 4),
+            child: Icon(Icons.star, color: Color(0xFFF59E0B)),
+          );
+        }
+        return FilledButton.tonalIcon(
+          onPressed: () => PaywallScreen.open(context, service),
+          icon: const Icon(Icons.star_outline, size: 18),
+          label: const Text('Premium'),
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            minimumSize: const Size(0, 36),
+          ),
+        );
+      },
     );
   }
 }
