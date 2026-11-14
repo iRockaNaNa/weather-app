@@ -25,6 +25,7 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import es.antonborri.home_widget.HomeWidgetGlanceState
 import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
 import es.antonborri.home_widget.HomeWidgetGlanceWidgetReceiver
@@ -105,7 +106,7 @@ class WeatherWidget : GlanceAppWidget() {
                 style = TextStyle(
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = ColorProvider(Color.White),
                 ),
             )
             Text(
@@ -113,17 +114,17 @@ class WeatherWidget : GlanceAppWidget() {
                 style = TextStyle(
                     fontSize = 34.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = ColorProvider(Color.White),
                 ),
             )
             Text(
                 "${data.condition} · ${data.feelsLike}",
-                style = TextStyle(fontSize = 13.sp, color = Color.White),
+                style = TextStyle(fontSize = 13.sp, color = ColorProvider(Color.White)),
             )
             if (!isSmall && data.dialogue.isNotEmpty()) {
                 Text(
                     data.dialogue,
-                    style = TextStyle(fontSize = 12.sp, color = Color.White),
+                    style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
                     maxLines = 2,
                 )
             }
@@ -134,20 +135,20 @@ class WeatherWidget : GlanceAppWidget() {
     private fun LockedContent(isSmall: Boolean) {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
-            verticalAlignment = Alignment.Vertical.Center,
+            verticalAlignment = Alignment.Vertical.CenterVertically,
         ) {
             Text(
                 "★ Premium",
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = ColorProvider(Color.White),
                 ),
             )
             if (!isSmall) {
                 Text(
                     "Widgets are a Premium feature — tap to upgrade.",
-                    style = TextStyle(fontSize = 12.sp, color = Color.White),
+                    style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
                     maxLines = 3,
                 )
             }
@@ -158,20 +159,20 @@ class WeatherWidget : GlanceAppWidget() {
     private fun NoDataContent(isSmall: Boolean) {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
-            verticalAlignment = Alignment.Vertical.Center,
+            verticalAlignment = Alignment.Vertical.CenterVertically,
         ) {
             Text(
                 "Weather App",
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = ColorProvider(Color.White),
                 ),
             )
             if (!isSmall) {
                 Text(
                     "Open the app to load weather.",
-                    style = TextStyle(fontSize = 12.sp, color = Color.White),
+                    style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
                 )
             }
         }
@@ -215,7 +216,7 @@ class WeatherWidget : GlanceAppWidget() {
 /// "home_widget.double.<key>" flag, so read them back the same way.
 private fun SharedPreferences.getWidgetDouble(key: String, default: Double): Double {
     return if (getBoolean("home_widget.double.$key", false)) {
-        Double.longBitsToDouble(
+        Double.fromBits(
             getLong(key, java.lang.Double.doubleToRawLongBits(default)),
         )
     } else {
