@@ -81,7 +81,8 @@ class PaywallScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Thank you! You have unlimited cities, the full 10-day forecast, and the live radar.',
+            'Thank you! You have unlimited cities, the full 10-day forecast, '
+            'the live radar, and snarky weather dialogue.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Color(0xFF555555)),
           ),
@@ -117,7 +118,8 @@ class PaywallScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Premium unlocks unlimited saved cities, the full 10-day forecast, and the live radar. '
+            'Premium unlocks unlimited saved cities, the full 10-day forecast, '
+            'the live radar, and snarky weather dialogue. '
             'Current weather and the hourly forecast stay free.',
             style: TextStyle(fontSize: 15, color: Color(0xFF555555)),
           ),

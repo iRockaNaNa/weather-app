@@ -7,6 +7,7 @@ import '../models/weather.dart';
 import '../models/weather_codes.dart';
 import '../services/purchase_service.dart';
 import '../widgets/hourly_strip.dart';
+import '../widgets/personality_line.dart';
 import '../widgets/weather_art.dart';
 import 'paywall_screen.dart';
 
@@ -164,6 +165,7 @@ class _CityDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
+              PersonalityLine(data: data, color: Colors.white),
               Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20, vertical: 16),

@@ -11,26 +11,41 @@ import 'screens/onboarding_screen.dart';
 import 'screens/splash_screen.dart';
 import 'services/city_store.dart';
 import 'services/location_service.dart';
+import 'services/personality.dart';
 import 'services/purchase_service.dart';
 import 'services/weather_api.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final purchaseService = PurchaseService();
+  final personalitySettings = PersonalitySettings();
   // Never blocks startup: any store failure just leaves the app free tier.
   unawaited(purchaseService.initialize());
-  runApp(WeatherApp(purchaseService: purchaseService));
+  unawaited(personalitySettings.load());
+  runApp(WeatherApp(
+    purchaseService: purchaseService,
+    personalitySettings: personalitySettings,
+  ));
 }
 
 class WeatherApp extends StatelessWidget {
-  const WeatherApp({super.key, required this.purchaseService});
+  const WeatherApp({
+    super.key,
+    required this.purchaseService,
+    required this.personalitySettings,
+  });
 
   final PurchaseService purchaseService;
+  final PersonalitySettings personalitySettings;
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider<PurchaseService>.value(
-      value: purchaseService,
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<PurchaseService>.value(value: purchaseService),
+        RepositoryProvider<PersonalitySettings>.value(
+            value: personalitySettings),
+      ],
       child: BlocProvider(
         create: (_) => WeatherCubit(
           api: WeatherApi(),

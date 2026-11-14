@@ -8,9 +8,11 @@ import '../models/weather.dart';
 import '../services/premium.dart';
 import '../services/purchase_service.dart';
 import '../widgets/city_card.dart';
+import '../widgets/personality_line.dart';
 import 'city_detail_screen.dart';
 import 'paywall_screen.dart';
 import 'radar_screen.dart';
+import 'settings_screen.dart';
 
 /// Home: "Weather" title, search bar, colorful city cards.
 /// Long-press a card to remove that city.
@@ -151,6 +153,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: const Color(0xFF2B5FA8),
                         tooltip: 'Use my location',
                       ),
+                      IconButton(
+                        onPressed: () => SettingsScreen.open(context),
+                        icon: const Icon(Icons.settings),
+                        color: const Color(0xFF2B5FA8),
+                        tooltip: 'Settings',
+                      ),
                     ],
                   ),
                 ),
@@ -262,9 +270,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         context.read<WeatherCubit>().refresh(),
                     child: ListView.builder(
                       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                      itemCount: cities.length,
+                      // One extra slot for the dialogue line, shown right
+                      // under the GPS city card (or the first card when
+                      // there is no GPS city). The line itself renders
+                      // nothing for free users or when the toggle is off.
+                      itemCount: cities.length + 1,
                       itemBuilder: (context, index) {
-                        final data = cities[index];
+                        final gpsIndex = cities.indexWhere(
+                            (w) => w.city.isCurrentLocation);
+                        final dialogueIndex = (gpsIndex >= 0 ? gpsIndex : 0) + 1;
+                        if (index == dialogueIndex) {
+                          return PersonalityLine(
+                            data: cities[dialogueIndex - 1],
+                          );
+                        }
+                        final data = cities[
+                            index > dialogueIndex ? index - 1 : index];
                         return CityCard(
                           data: data,
                           onTap: () => _openDetail(index),
