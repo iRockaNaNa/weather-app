@@ -49,6 +49,9 @@ class PremiumRules {
 
   /// Is the snarky weather dialogue locked for this user?
   static bool isPersonalityLocked({required bool isPremium}) => !isPremium;
+
+  /// Is the home-screen widget locked for this user?
+  static bool isWidgetLocked({required bool isPremium}) => !isPremium;
 }
 
 /// A saved record that this device owns Premium.
