@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../models/weather_codes.dart';
 import '../widgets/weather_art.dart';
@@ -109,7 +109,7 @@ class OnboardingScreen extends StatelessWidget {
                         border: Border.all(color: Colors.white, width: 3),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF2B5FA8).withOpacity(0.35),
+                            color: const Color(0xFF2B5FA8).withValues(alpha: 0.35),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),

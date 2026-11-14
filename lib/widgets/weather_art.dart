@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../models/weather_codes.dart';
 
@@ -294,7 +294,7 @@ class _Cloud extends StatelessWidget {
               width: s * 0.84,
               height: s * 0.10,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.12),
+                color: Colors.black.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(s * 0.05),
               ),
             ),
@@ -332,7 +332,7 @@ class _Cloud extends StatelessWidget {
               width: s * 0.22,
               height: s * 0.12,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(s * 0.06),
               ),
             ),
@@ -345,7 +345,7 @@ class _Cloud extends StatelessWidget {
               width: s * 0.72,
               height: s * 0.10,
               decoration: BoxDecoration(
-                color: const Color(0xFFDCE9FF).withOpacity(0.7),
+                color: const Color(0xFFDCE9FF).withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(s * 0.05),
               ),
             ),

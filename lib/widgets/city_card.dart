@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../models/weather.dart';
 import '../models/weather_codes.dart';
@@ -38,7 +38,7 @@ class CityCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: style.cardGradient.last.withOpacity(0.35),
+              color: style.cardGradient.last.withValues(alpha: 0.35),
               blurRadius: 16,
               offset: const Offset(0, 8),
             ),
@@ -67,7 +67,7 @@ class CityCard extends StatelessWidget {
                     Text(
                       style.label,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.85),
+                        color: Colors.white.withValues(alpha: 0.85),
                         fontSize: 15,
                       ),
                     ),

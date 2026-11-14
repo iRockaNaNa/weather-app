@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/weather_cubit.dart';
@@ -124,7 +124,7 @@ class _CityDetailPage extends StatelessWidget {
                         Text(
                           DateFormats.mediumDate(today),
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -157,7 +157,7 @@ class _CityDetailPage extends StatelessWidget {
               Text(
                 'Feels like ${data.current.feelsLike.round()}°',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.85),
+                  color: Colors.white.withValues(alpha: 0.85),
                   fontSize: 15,
                 ),
               ),
@@ -166,7 +166,7 @@ class _CityDetailPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.16),
+                  color: Colors.white.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Row(
@@ -201,7 +201,7 @@ class _CityDetailPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 18, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.16),
+                  color: Colors.white.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
@@ -228,7 +228,7 @@ class _CityDetailPage extends StatelessWidget {
                             child: Text(
                               shortLabelForCode(d.weatherCode),
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.85),
+                                color: Colors.white.withValues(alpha: 0.85),
                                 fontSize: 14,
                               ),
                             ),
@@ -236,7 +236,7 @@ class _CityDetailPage extends StatelessWidget {
                           Text(
                             '${d.tempMin.round()}°',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 15,
                             ),
                           ),
@@ -268,7 +268,7 @@ class _CityDetailPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: active
                             ? Colors.white
-                            : Colors.white.withOpacity(0.45),
+                            : Colors.white.withValues(alpha: 0.45),
                         borderRadius: BorderRadius.circular(5),
                       ),
                     );

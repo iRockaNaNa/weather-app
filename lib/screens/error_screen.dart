@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../widgets/weather_art.dart';
 import '../models/weather_codes.dart';
@@ -60,7 +60,7 @@ class ErrorScreen extends StatelessWidget {
                     message,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.92),
+                      color: Colors.white.withValues(alpha: 0.92),
                       fontSize: 16,
                       height: 1.5,
                     ),

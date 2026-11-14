@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../models/weather.dart';
 import '../models/weather_codes.dart';
@@ -19,7 +19,7 @@ class HourlyStrip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
+        color: Colors.white.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(24),
       ),
       child: SizedBox(
@@ -38,7 +38,7 @@ class HourlyStrip extends StatelessWidget {
                 Text(
                   index == 0 ? 'Now' : DateFormats.hourLabel(h.time),
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -100,7 +100,7 @@ class StatCell extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.75),
+            color: Colors.white.withValues(alpha: 0.75),
             fontSize: 12,
           ),
         ),
