@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/weather.dart';
+import 'nws_api.dart';
 
 class WeatherException implements Exception {
   WeatherException(this.message);
@@ -13,16 +14,35 @@ class WeatherException implements Exception {
 }
 
 /// Open-Meteo — free weather data, no API key needed.
+/// Falls back to the National Weather Service (US only, also free
+/// and keyless) when Open-Meteo can't be reached at all, so one
+/// blocked address never leaves the app with no weather.
 class WeatherApi {
-  WeatherApi({http.Client? client}) : _client = client ?? http.Client();
+  WeatherApi({http.Client? client, NwsApi? nwsApi})
+      : _client = client ?? http.Client(),
+        _nwsApi = nwsApi ?? NwsApi(client: client);
 
   final http.Client _client;
+  final NwsApi _nwsApi;
 
   static const _forecastBase = 'https://api.open-meteo.com/v1/forecast';
   static const _geoBase = 'https://geocoding-api.open-meteo.com/v1/search';
 
   /// Current weather + hourly + 10-day forecast for one city.
+  /// Open-Meteo first; the National Weather Service if that fails.
   Future<WeatherData> fetchWeather(City city) async {
+    try {
+      return await _fetchFromOpenMeteo(city);
+    } on WeatherException catch (e) {
+      try {
+        return await _nwsApi.fetchWeather(city);
+      } catch (_) {
+        throw e;
+      }
+    }
+  }
+
+  Future<WeatherData> _fetchFromOpenMeteo(City city) async {
     final uri = Uri.parse(
       '$_forecastBase?latitude=${city.latitude}&longitude=${city.longitude}'
       '&current=temperature_2m,relative_humidity_2m,apparent_temperature,'
