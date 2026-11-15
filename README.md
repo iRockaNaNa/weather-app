@@ -1,4 +1,4 @@
-# Weather App
+# Chance of Bananas
 
 Discover the weather in your city and plan your day correctly — a Flutter
 weather app built to match the design from

@@ -25,9 +25,21 @@ import 'premium.dart';
 /// Entitlement is saved on the device, so a paying user stays Premium when
 /// the store can't be reached. With no saved purchase and no store
 /// confirmation, the user is on the free tier.
+///
+/// Test builds (debug, which is what CI builds) have Premium unlocked so
+/// the features can be tried before the store products exist. The Play
+/// Store release build never takes that path.
 class PurchaseService {
   PurchaseService({InAppPurchase? store})
-      : _store = store ?? InAppPurchase.instance;
+      : _store = store ?? InAppPurchase.instance {
+    // Test builds only (CI builds --debug): Premium is unlocked so the
+    // features can be tried before the store products exist. The Play
+    // Store release build never takes this path. It lives here, not in
+    // initialize(), because initialize() talks to the store — and the
+    // store never answers in a test, so a test calling initialize()
+    // would hang waiting for it.
+    if (kDebugMode) isPremium.value = true;
+  }
 
   final InAppPurchase _store;
 

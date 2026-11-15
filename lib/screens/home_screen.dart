@@ -14,7 +14,7 @@ import 'paywall_screen.dart';
 import 'radar_screen.dart';
 import 'settings_screen.dart';
 
-/// Home: "Weather" title, search bar, colorful city cards.
+/// Home: "Chance of Bananas" title, search bar, colorful city cards.
 /// Long-press a card to remove that city.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -128,36 +128,42 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Weather',
+                        'Chance of Bananas',
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF1A1A2E),
                         ),
                       ),
-                      const Spacer(),
-                      _PremiumButton(),
-                      IconButton(
-                        onPressed: () => _openRadar(cities),
-                        icon: const Icon(Icons.radar),
-                        color: const Color(0xFF2B5FA8),
-                        tooltip: 'Live radar',
-                      ),
-                      IconButton(
-                        onPressed: () =>
-                            context.read<WeatherCubit>().retryLocation(),
-                        icon: const Icon(Icons.my_location),
-                        color: const Color(0xFF2B5FA8),
-                        tooltip: 'Use my location',
-                      ),
-                      IconButton(
-                        onPressed: () => SettingsScreen.open(context),
-                        icon: const Icon(Icons.settings),
-                        color: const Color(0xFF2B5FA8),
-                        tooltip: 'Settings',
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          _PremiumButton(),
+                          const Spacer(),
+                          IconButton(
+                            onPressed: () => _openRadar(cities),
+                            icon: const Icon(Icons.radar),
+                            color: const Color(0xFF2B5FA8),
+                            tooltip: 'Live radar',
+                          ),
+                          IconButton(
+                            onPressed: () =>
+                                context.read<WeatherCubit>().retryLocation(),
+                            icon: const Icon(Icons.my_location),
+                            color: const Color(0xFF2B5FA8),
+                            tooltip: 'Use my location',
+                          ),
+                          IconButton(
+                            onPressed: () => SettingsScreen.open(context),
+                            icon: const Icon(Icons.settings),
+                            color: const Color(0xFF2B5FA8),
+                            tooltip: 'Settings',
+                          ),
+                        ],
                       ),
                     ],
                   ),

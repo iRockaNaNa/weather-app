@@ -1,5 +1,5 @@
 name: weather_app
-description: "Weather App — discover the weather in your city and plan your day correctly."
+description: "Chance of Bananas — discover the weather in your city and plan your day correctly."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1

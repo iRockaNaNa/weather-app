@@ -55,7 +55,7 @@ class WeatherApp extends StatelessWidget {
           store: CityStore(),
         ),
         child: MaterialApp(
-          title: 'Weather App',
+          title: 'Chance of Bananas',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             useMaterial3: true,
