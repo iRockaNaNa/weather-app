@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/weather.dart';
+import '../services/alerts_api.dart';
 import '../services/city_store.dart';
 import '../services/location_service.dart';
 import '../services/weather_api.dart';
@@ -12,14 +13,17 @@ class WeatherCubit extends Cubit<WeatherState> {
     required WeatherApi api,
     required LocationService locationService,
     required CityStore store,
+    AlertsApi? alertsApi,
   })  : _api = api,
         _locationService = locationService,
         _store = store,
+        _alertsApi = alertsApi ?? AlertsApi(),
         super(const WeatherInitial());
 
   final WeatherApi _api;
   final LocationService _locationService;
   final CityStore _store;
+  final AlertsApi _alertsApi;
 
   /// Saved (non-GPS) cities, kept so refreshes reuse the same list.
   List<City> _savedCities = [];
@@ -101,8 +105,12 @@ class WeatherCubit extends Cubit<WeatherState> {
           current.cities.any((w) => w.city.isCurrentLocation);
       if (alreadyThere) return;
       final data = await _api.fetchWeather(gpsCity);
+      final alerts = await _alertsApi.fetchAlerts(
+        latitude: gpsCity.latitude,
+        longitude: gpsCity.longitude,
+      );
       emit(WeatherLoaded(
-        cities: [data, ...current.cities],
+        cities: [data.copyWith(alerts: alerts), ...current.cities],
         locationAvailable: true,
       ));
     } catch (_) {
@@ -121,10 +129,14 @@ class WeatherCubit extends Cubit<WeatherState> {
     if (current.cities.any((w) => w.city.id == city.id)) return;
     try {
       final data = await _api.fetchWeather(city);
+      final alerts = await _alertsApi.fetchAlerts(
+        latitude: city.latitude,
+        longitude: city.longitude,
+      );
       _savedCities = [..._savedCities, city];
       await _store.saveCities(_savedCities);
       emit(WeatherLoaded(
-        cities: [...current.cities, data],
+        cities: [...current.cities, data.copyWith(alerts: alerts)],
         locationAvailable: current.locationAvailable,
       ));
     } catch (_) {
@@ -155,7 +167,13 @@ class WeatherCubit extends Cubit<WeatherState> {
     final results = await Future.wait(
       cities.map((c) async {
         try {
-          return await _api.fetchWeather(c);
+          final data = await _api.fetchWeather(c);
+          // Alerts never block the weather: a failure just means none.
+          final alerts = await _alertsApi.fetchAlerts(
+            latitude: c.latitude,
+            longitude: c.longitude,
+          );
+          return data.copyWith(alerts: alerts);
         } catch (_) {
           return null;
         }

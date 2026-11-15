@@ -9,6 +9,7 @@ import 'screens/error_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/splash_screen.dart';
+import 'services/alerts_api.dart';
 import 'services/city_store.dart';
 import 'services/location_service.dart';
 import 'services/personality.dart';
@@ -49,6 +50,7 @@ class WeatherApp extends StatelessWidget {
       child: BlocProvider(
         create: (_) => WeatherCubit(
           api: WeatherApi(),
+          alertsApi: AlertsApi(),
           locationService: LocationService(),
           store: CityStore(),
         ),

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../services/alerts_api.dart';
+
 /// A place the user can get weather for.
 class City {
   const City({
@@ -134,6 +136,7 @@ class WeatherData {
     required this.hourly,
     required this.daily,
     required this.fetchedAt,
+    this.alerts = const [],
   });
 
   final City city;
@@ -146,6 +149,19 @@ class WeatherData {
   final List<DailyPoint> daily;
 
   final DateTime fetchedAt;
+
+  /// Active NWS severe-weather alerts for this city (US only, may be
+  /// empty). Loaded alongside the weather, never blocks it.
+  final List<WeatherAlert> alerts;
+
+  WeatherData copyWith({List<WeatherAlert>? alerts}) => WeatherData(
+        city: city,
+        current: current,
+        hourly: hourly,
+        daily: daily,
+        fetchedAt: fetchedAt,
+        alerts: alerts ?? this.alerts,
+      );
 
   factory WeatherData.fromJson(City city, Map<String, dynamic> json) {
     final current = json['current'] as Map<String, dynamic>;
