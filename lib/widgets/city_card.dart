@@ -29,7 +29,6 @@ class CityCard extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
-        height: 148,
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -98,13 +97,16 @@ class CityCard extends StatelessWidget {
                                   size: 14,
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  '${data.alerts.length} active '
-                                  'alert${data.alerts.length == 1 ? '' : 's'}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
+                                Flexible(
+                                  child: Text(
+                                    '${data.alerts.length} alert${data.alerts.length == 1 ? '' : 's'}',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
                               ],
