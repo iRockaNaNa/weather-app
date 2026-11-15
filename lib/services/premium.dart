@@ -3,7 +3,7 @@
 /// Free tier: ONE location total — the GPS city when available, otherwise
 /// one saved city — plus current conditions and the hourly forecast.
 /// Premium covers ALL features: unlimited saved cities, the 10-day forecast,
-/// the live radar, snarky weather dialogue, severe-weather alerts, widgets,
+/// the live radar, snarky weather dialogue, severe-weather alerts,
 /// and anything added later.
 ///
 /// Premium can be bought two ways, same unlock either way:
@@ -49,9 +49,6 @@ class PremiumRules {
 
   /// Is the snarky weather dialogue locked for this user?
   static bool isPersonalityLocked({required bool isPremium}) => !isPremium;
-
-  /// Is the home-screen widget locked for this user?
-  static bool isWidgetLocked({required bool isPremium}) => !isPremium;
 }
 
 /// A saved record that this device owns Premium.

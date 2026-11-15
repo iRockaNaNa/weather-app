@@ -1,12 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_widget/home_widget.dart';
 
 import '../cubit/weather_cubit.dart';
 import '../cubit/weather_state.dart';
 import '../services/personality.dart';
 import '../services/purchase_service.dart';
-import '../services/widget_service.dart';
 import 'paywall_screen.dart';
 
 /// Settings: Premium state plus the weather personality (Premium only).
@@ -66,47 +64,11 @@ class SettingsScreen extends StatelessWidget {
                 return const _PersonalityControls();
               },
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'Home-screen widget',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF1A1A2E),
-              ),
-            ),
-            const SizedBox(height: 8),
-            ValueListenableBuilder<bool>(
-              valueListenable: purchaseService.isPremium,
-              builder: (context, isPremium, _) {
-                if (!isPremium) return const _LockedWidgetCard();
-                return const _WidgetRow();
-              },
-            ),
           ],
         ),
       ),
     );
   }
-}
-
-/// Pushes the current weather + personality choices to the home-screen
-/// widget, so a toggle flip shows up on the widget right away.
-Future<void> _syncWidget(BuildContext context) async {
-  final state = context.read<WeatherCubit>().state;
-  final purchaseService = context.read<PurchaseService>();
-  final settings = context.read<PersonalitySettings>();
-  final gps = state is WeatherLoaded ? WidgetService.gpsDataOf(state) : null;
-  final isPremium = purchaseService.isPremium.value;
-  await WidgetService().sync(
-    gpsData: gps,
-    isPremium: isPremium,
-    dialogueLine: WidgetService.dialogueLineFor(
-      gpsData: gps,
-      settings: settings,
-      isPremium: isPremium,
-    ),
-  );
 }
 
 /// Shows "You're Premium" for Premium users, otherwise a button that
@@ -191,7 +153,6 @@ class _PersonalityControls extends StatelessWidget {
               value: enabled,
               onChanged: (value) async {
                 await settings.setDialogueEnabled(value);
-                if (context.mounted) await _syncWidget(context);
               },
               contentPadding: EdgeInsets.zero,
             ),
@@ -210,7 +171,6 @@ class _PersonalityControls extends StatelessWidget {
                 onChanged: (value) async {
                   if (value == null) return;
                   await settings.setPersonality(value);
-                  if (context.mounted) await _syncWidget(context);
                 },
                 child: Column(
                   children: [
@@ -341,104 +301,3 @@ class _LockedPersonalityCard extends StatelessWidget {
   }
 }
 
-/// Adds the weather widget to the home screen, for Premium users.
-/// Asks the launcher to pin it (Android 8+); some launchers don't
-/// support pinning, in which case nothing happens.
-class _WidgetRow extends StatelessWidget {
-  const _WidgetRow();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Puts the GPS city’s current weather on your home screen, '
-          'with your dialogue line when it’s on. Tap the widget to '
-          'open the app.',
-          style: TextStyle(fontSize: 14, color: Color(0xFF555555)),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: () async {
-              try {
-                await HomeWidget.requestPinWidget(
-                  qualifiedAndroidName: WidgetService.receiverClassName,
-                );
-              } catch (_) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'This launcher can’t add widgets this way — '
-                        'long-press your home screen and add it from '
-                        'the widget picker.',
-                      ),
-                    ),
-                  );
-                }
-              }
-            },
-            icon: const Icon(Icons.widgets_outlined, size: 18),
-            label: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 6),
-              child: Text(
-                'Add widget to home screen',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Shown instead of the widget row for free users: a locked state with
-/// an upgrade prompt, never a blank area.
-class _LockedWidgetCard extends StatelessWidget {
-  const _LockedWidgetCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.lock_outline,
-              size: 32, color: Color(0xFF2B5FA8)),
-          const SizedBox(height: 8),
-          const Text(
-            'Home-screen widget',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1A2E),
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Premium puts the current weather on your home screen.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Color(0xFF555555)),
-          ),
-          const SizedBox(height: 12),
-          FilledButton(
-            onPressed: () => PaywallScreen.open(
-              context,
-              context.read<PurchaseService>(),
-            ),
-            child: const Text('See Premium'),
-          ),
-        ],
-      ),
-    );
-  }
-}

@@ -1,15 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'dart:async';
 
 import '../cubit/weather_cubit.dart';
 import '../cubit/weather_state.dart';
 import '../models/weather.dart';
-import '../services/personality.dart';
 import '../services/premium.dart';
 import '../services/purchase_service.dart';
-import '../services/widget_service.dart';
 import '../widgets/city_card.dart';
 import '../widgets/personality_line.dart';
 import 'city_detail_screen.dart';
@@ -30,70 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final _searchController = TextEditingController();
   List<City> _searchResults = [];
   bool _searching = false;
-  StreamSubscription<Uri?>? _widgetClickSub;
-  late final ValueNotifier<bool> _isPremium;
-
-  @override
-  void initState() {
-    super.initState();
-    _isPremium = context.read<PurchaseService>().isPremium;
-    _isPremium.addListener(_syncWidgetFromState);
-    _widgetClickSub = WidgetService.widgetClicked.listen(_onWidgetTap);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _syncWidgetFromState();
-      _checkWidgetLaunch();
-    });
-  }
 
   @override
   void dispose() {
-    _widgetClickSub?.cancel();
-    _isPremium.removeListener(_syncWidgetFromState);
     _searchController.dispose();
     super.dispose();
-  }
-
-  /// Pushes the current weather to the home-screen widget. Runs on every
-  /// weather load/refresh and whenever Premium flips.
-  Future<void> _syncWidget(WeatherLoaded state) async {
-    final purchaseService = context.read<PurchaseService>();
-    final settings = context.read<PersonalitySettings>();
-    final gps = WidgetService.gpsDataOf(state);
-    final isPremium = purchaseService.isPremium.value;
-    await WidgetService().sync(
-      gpsData: gps,
-      isPremium: isPremium,
-      dialogueLine: WidgetService.dialogueLineFor(
-        gpsData: gps,
-        settings: settings,
-        isPremium: isPremium,
-      ),
-    );
-  }
-
-  void _syncWidgetFromState() {
-    final state = context.read<WeatherCubit>().state;
-    if (state is WeatherLoaded) {
-      unawaited(_syncWidget(state));
-    }
-  }
-
-  /// Did the app just launch from a widget tap?
-  Future<void> _checkWidgetLaunch() async {
-    final uri = await WidgetService.launchedFromWidget();
-    if (mounted) _onWidgetTap(uri);
-  }
-
-  /// A tap on the locked widget opens the app straight to the paywall.
-  /// Any other widget tap just opens the app.
-  void _onWidgetTap(Uri? uri) {
-    if (uri == null || !WidgetService.isPaywallTap(uri)) return;
-    if (!mounted) return;
-    final service = context.read<PurchaseService>();
-    if (!service.isPremium.value) {
-      PaywallScreen.open(context, service);
-    }
   }
 
   Future<void> _runSearch(String query) async {
@@ -179,12 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: BlocListener<WeatherCubit, WeatherState>(
-          // Every weather load/refresh pushes fresh data to the widget.
-          listener: (context, state) {
-            if (state is WeatherLoaded) unawaited(_syncWidget(state));
-          },
-          child: BlocBuilder<WeatherCubit, WeatherState>(
+        child: BlocBuilder<WeatherCubit, WeatherState>(
           builder: (context, state) {
             if (state is! WeatherLoaded) {
               return const Center(child: CircularProgressIndicator());
@@ -380,7 +313,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             );
           },
-          ),
         ),
       ),
     );
