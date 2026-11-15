@@ -22,20 +22,29 @@ class RadarScreen extends StatefulWidget {
     required this.latitude,
     required this.longitude,
     required this.cityName,
+    this.api,
   });
 
   final double latitude;
   final double longitude;
   final String cityName;
 
+  /// Radar API to use — only the tests pass one (a mock client).
+  /// The app always uses the real RainViewer API.
+  final RadarApi? api;
+
   @override
   State<RadarScreen> createState() => _RadarScreenState();
 }
 
 class _RadarScreenState extends State<RadarScreen> {
-  final _api = RadarApi();
+  late final RadarApi _api;
   RadarFrames? _frames;
-  bool _loading = true;
+  // Starts false on purpose: the first load is triggered from build()
+  // only when NOT already loading, so starting at true meant the load
+  // never started — the spinner stayed up forever and the refresh
+  // button was disabled too, so there was no way out.
+  bool _loading = false;
   String? _error;
   int _frameIndex = 0;
   bool _playing = false;
@@ -50,6 +59,7 @@ class _RadarScreenState extends State<RadarScreen> {
   @override
   void initState() {
     super.initState();
+    _api = widget.api ?? RadarApi();
     // Frames load lazily from build(): only Premium users get the radar,
     // so free users never trigger a network fetch.
   }
