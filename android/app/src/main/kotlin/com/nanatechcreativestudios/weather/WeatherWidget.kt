@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
@@ -35,11 +34,17 @@ import kotlin.math.roundToInt
 
 /// The home-screen widget: the GPS city's current weather.
 ///
-/// Two sizes: 2x2 (compact) and 4x2 (full). Content is gated, not the
-/// widget itself — free users see a locked upsell, Premium users see
-/// live data, and a fresh install with no data yet asks the user to
-/// open the app. Tapping the widget opens the app; a tap on the locked
-/// widget opens it straight to the paywall.
+/// One layout for both sizes (2x2 compact and 4x2 full) — the content
+/// is the same, the compact widget just shows it in less space. This is
+/// deliberate: Glance's LocalSize.current cannot be read in this module,
+/// because the Kotlin JVM backend cannot inline the inline getter
+/// CompositionLocal.current (Compose runtime 1.7.8) here — it crashed
+/// the build twice, inside WidgetContent and inside the provideContent
+/// lambda alike. So there is no size branching at all. Content is
+/// gated, not the widget itself — free users see a locked upsell,
+/// Premium users see live data, and a fresh install with no data yet
+/// asks the user to open the app. Tapping the widget opens the app; a
+/// tap on the locked widget opens it straight to the paywall.
 class WeatherWidget : GlanceAppWidget() {
 
     override val stateDefinition = HomeWidgetGlanceStateDefinition()
@@ -52,19 +57,14 @@ class WeatherWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        provideContent {
-            val isSmall = LocalSize.current.width < 180.dp
-            WidgetContent(context, currentState(), isSmall)
-        }
+        provideContent { WidgetContent(context, currentState()) }
     }
 
     override suspend fun providePreview(context: Context, widgetCategory: Int) {
         provideContent {
-            val isSmall = LocalSize.current.width < 180.dp
             WidgetContent(
                 context,
                 HomeWidgetGlanceState(HomeWidgetPlugin.getData(context)),
-                isSmall,
                 preview = true,
             )
         }
@@ -74,7 +74,6 @@ class WeatherWidget : GlanceAppWidget() {
     private fun WidgetContent(
         context: Context,
         state: HomeWidgetGlanceState,
-        isSmall: Boolean,
         preview: Boolean = false,
     ) {
         val data = readData(state.preferences, preview)
@@ -93,15 +92,15 @@ class WeatherWidget : GlanceAppWidget() {
                 .clickable(onClick = openApp),
         ) {
             when (data.state) {
-                "live" -> LiveContent(data, isSmall)
-                "locked" -> LockedContent(isSmall)
-                else -> NoDataContent(isSmall)
+                "live" -> LiveContent(data)
+                "locked" -> LockedContent()
+                else -> NoDataContent()
             }
         }
     }
 
     @Composable
-    private fun LiveContent(data: WidgetData, isSmall: Boolean) {
+    private fun LiveContent(data: WidgetData) {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
             verticalAlignment = Alignment.Vertical.Top,
@@ -109,35 +108,37 @@ class WeatherWidget : GlanceAppWidget() {
             Text(
                 data.city,
                 style = TextStyle(
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = ColorProvider(Color.White),
                 ),
+                maxLines = 1,
             )
             Text(
                 data.temp,
                 style = TextStyle(
-                    fontSize = 34.sp,
+                    fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = ColorProvider(Color.White),
                 ),
             )
             Text(
                 "${data.condition} · ${data.feelsLike}",
-                style = TextStyle(fontSize = 13.sp, color = ColorProvider(Color.White)),
+                style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
+                maxLines = 1,
             )
-            if (!isSmall && data.dialogue.isNotEmpty()) {
+            if (data.dialogue.isNotEmpty()) {
                 Text(
                     data.dialogue,
-                    style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
-                    maxLines = 2,
+                    style = TextStyle(fontSize = 11.sp, color = ColorProvider(Color.White)),
+                    maxLines = 1,
                 )
             }
         }
     }
 
     @Composable
-    private fun LockedContent(isSmall: Boolean) {
+    private fun LockedContent() {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
             verticalAlignment = Alignment.Vertical.CenterVertically,
@@ -150,18 +151,16 @@ class WeatherWidget : GlanceAppWidget() {
                     color = ColorProvider(Color.White),
                 ),
             )
-            if (!isSmall) {
-                Text(
-                    "Widgets are a Premium feature — tap to upgrade.",
-                    style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
-                    maxLines = 3,
-                )
-            }
+            Text(
+                "Widgets are a Premium feature — tap to upgrade.",
+                style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
+                maxLines = 3,
+            )
         }
     }
 
     @Composable
-    private fun NoDataContent(isSmall: Boolean) {
+    private fun NoDataContent() {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
             verticalAlignment = Alignment.Vertical.CenterVertically,
@@ -174,12 +173,10 @@ class WeatherWidget : GlanceAppWidget() {
                     color = ColorProvider(Color.White),
                 ),
             )
-            if (!isSmall) {
-                Text(
-                    "Open the app to load weather.",
-                    style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
-                )
-            }
+            Text(
+                "Open the app to load weather.",
+                style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.White)),
+            )
         }
     }
 
